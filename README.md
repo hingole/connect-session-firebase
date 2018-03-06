@@ -14,14 +14,15 @@
 
 ## Options
 
-  - `database` A pre-initialized Firebase Database app instance.
+  - `database` A pre-initialized Firebase or Firestore Database app instance.
   - `sessions` (optional) A child reference string for session storage. (defaults to "sessions")
   - `reapInterval` (optional) How often expired sessions should be cleaned up (defaults to 21600000) (6 hours in milliseconds)
+     Note: 'reapInterval' option is not supported with firestore backend.
   - `reapCallback` (optional) A callback function to execute whenever a session clean up occurs
 
 ## Usage
 
-Initialize `firebase-admin` database and pass the instance to `FirebaseStore`. Connecting to the database requires a credential cert via a JSON file from the [Firebase IAM & Admin Console](https://console.firebase.google.com/iam-admin/projects).
+Initialize `firebase-admin` database and pass the instance to `FirebaseStore` or `FirestoreStore`. Connecting to the database requires a credential cert via a JSON file from the [Firebase IAM & Admin Console](https://console.firebase.google.com/iam-admin/projects).
 
 * [Connect](http://senchalabs.github.io/connect)
 
@@ -39,6 +40,7 @@ connect()
   .use(connect.session({
     store: new FirebaseStore({
       database: ref.database()
+      firestoreDb: this.firebase.firestore()
     }),
     secret: 'keyboard cat'
   }));
@@ -62,6 +64,29 @@ express()
   .use(session({
     store: new FirebaseStore({
       database: ref.database()
+    }),
+    secret: 'keyboard cat'
+    resave: true,
+    saveUninitialized: true
+  }));
+```
+
+* [Express](http://expressjs.com) with [Firestore](https://firebase.google.com/docs/firestore)
+
+```js
+const express = require('express');
+const session = require('express-session');
+const FirestoreStore = require('connect-session-firestore')(session);
+const firebase = require('firebase-admin');
+const ref = firebase.initializeApp({
+  credential: firebase.credential.cert('path/to/serviceAccountCredentials.json'),
+  databaseURL: 'https://databaseName.firebaseio.com'
+});
+
+express()
+  .use(session({
+    store: new FirebaseStore({
+      firestoreDb: ref.firestore()
     }),
     secret: 'keyboard cat'
     resave: true,
@@ -94,11 +119,12 @@ Learn more about Firebase rules: https://firebase.google.com/docs/database/secur
 
 ## Tests
 
-To run tests against `connect-session-firebase` you will need your own Firebase Database app available.
+To run tests against `connect-session-firebase` and `connect-session-firestore` you will need your own Firebase Database app available.
 
 Checkout the repo locally and create two files in the project root:
 - .env
 - serviceAccountCredentials.json
+- firestoreServiceAccountCredentials.json
 
 With the content:
 
@@ -106,6 +132,9 @@ With the content:
 ```
 FIREBASE_SERVICE_ACCOUNT=./serviceAccountCredentials.json
 FIREBASE_DATABASE_URL=https://[databaseName].firebaseio.com
+
+FIRESTORE_SERVICE_ACCOUNT=./firestoreServiceAccountCredentials.json
+FIRESTORE_DATABASE_URL=https://firestore-test-db.firebaseio.com
 ```
 
 *serviceAccountCredentials.json*
