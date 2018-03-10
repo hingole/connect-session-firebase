@@ -28,7 +28,8 @@ Initialize `firebase-admin` database and pass the instance to `FirebaseStore` or
 
 ```js
 const connect = require('connect');
-const FirebaseStore = require('connect-session-firebase')(connect);
+const FirebaseStore = require('connect-session-firebase').connectSessionFirebase(connect);
+
 const firebase = require('firebase-admin');
 const ref = firebase.initializeApp({
   credential: firebase.credential.cert('path/to/serviceAccountCredentials.json'),
@@ -53,7 +54,7 @@ connect()
 ```js
 const express = require('express');
 const session = require('express-session');
-const FirebaseStore = require('connect-session-firebase')(session);
+const FirebaseStore = require('connect-session-firebase').connectSessionFirebase(session);
 const firebase = require('firebase-admin');
 const ref = firebase.initializeApp({
   credential: firebase.credential.cert('path/to/serviceAccountCredentials.json'),
@@ -76,7 +77,7 @@ express()
 ```js
 const express = require('express');
 const session = require('express-session');
-const FirestoreStore = require('connect-session-firestore')(session);
+const FirestoreStore = require('connect-session-firebase').connectSessionFirestore(session);
 const firebase = require('firebase-admin');
 const ref = firebase.initializeApp({
   credential: firebase.credential.cert('path/to/serviceAccountCredentials.json'),
